@@ -1,0 +1,6 @@
+emp_no,name,department,duty_quota_break,duty_quota_lunch
+1001,Alice Adams,Mathematics,2,1
+1002,Brett Brown,Mathematics,2,1
+1003,Carla Chen,English,3,2
+1004,David Diaz,Science,,
+1005,Eve Erikson,Science,1,1
