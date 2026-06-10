@@ -53,9 +53,9 @@ export default function App() {
           <Route path="admin/master" element={<ProtectedRoute requireAdmin><AdminMasterSchedule /></ProtectedRoute>} />
           <Route path="admin/attendance" element={<ProtectedRoute requireAdmin><AdminAttendance /></ProtectedRoute>} />
 
-          <Route path="teacher" element={<TeacherDashboard />} />
-          <Route path="teacher/slots" element={<TeacherSlots />} />
-          <Route path="teacher/swaps" element={<TeacherSwaps />} />
+          <Route path="teacher" element={<ProtectedRoute teacherOnly><TeacherDashboard /></ProtectedRoute>} />
+          <Route path="teacher/slots" element={<ProtectedRoute teacherOnly><TeacherSlots /></ProtectedRoute>} />
+          <Route path="teacher/swaps" element={<ProtectedRoute teacherOnly><TeacherSwaps /></ProtectedRoute>} />
 
           <Route path="attendance/self" element={<SelfReport />} />
           <Route path="attendance/monitor" element={<ProtectedRoute requireMonitor><Monitor /></ProtectedRoute>} />

@@ -6,9 +6,11 @@ interface Props {
   children: ReactNode
   requireAdmin?: boolean
   requireMonitor?: boolean
+  /** Booking pages are for teachers only — admins and monitors don't do duties. */
+  teacherOnly?: boolean
 }
 
-export function ProtectedRoute({ children, requireAdmin, requireMonitor }: Props) {
+export function ProtectedRoute({ children, requireAdmin, requireMonitor, teacherOnly }: Props) {
   const { session, profile, staff, loading } = useAuth()
   const location = useLocation()
 
@@ -29,6 +31,9 @@ export function ProtectedRoute({ children, requireAdmin, requireMonitor }: Props
     return <Navigate to="/" replace />
   }
   if (requireMonitor && !(profile?.is_monitor || profile?.is_admin)) {
+    return <Navigate to="/" replace />
+  }
+  if (teacherOnly && (profile?.is_admin || profile?.is_monitor)) {
     return <Navigate to="/" replace />
   }
   return <>{children}</>
