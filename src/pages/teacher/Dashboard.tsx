@@ -30,6 +30,15 @@ interface ActionableSwap {
   created_at: string
 }
 
+interface RecentSwap {
+  completed_at: string
+  gave_day: DayOfWeek
+  gave_type: DutyType
+  got_day: DayOfWeek
+  got_type: DutyType
+  with_name: string
+}
+
 const DAYS: DayOfWeek[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
 
 export default function TeacherDashboard() {
@@ -37,17 +46,19 @@ export default function TeacherDashboard() {
   const [s, setS] = useState<Summary | null>(null)
   const [schedule, setSchedule] = useState<ScheduleRow[]>([])
   const [actionable, setActionable] = useState<ActionableSwap[]>([])
+  const [recentSwaps, setRecentSwaps] = useState<RecentSwap[]>([])
 
   useEffect(() => {
     if (!staff) return
     void (async () => {
-      const [qb, ql, settings, slots, mySched, swaps] = await Promise.all([
+      const [qb, ql, settings, slots, mySched, swaps, recent] = await Promise.all([
         supabase.rpc('effective_quota', { p_staff_id: staff.id, p_duty_type: 'break' }),
         supabase.rpc('effective_quota', { p_staff_id: staff.id, p_duty_type: 'lunch_a' }),
         supabase.from('app_settings').select('booking_window_open, schedule_published').eq('id', 1).single(),
         supabase.rpc('get_browsable_slots'),
         supabase.rpc('my_schedule'),
         supabase.rpc('actionable_swap_requests'),
+        supabase.rpc('my_recent_swaps'),
       ])
       const booked = (slots.data ?? []).filter((x) => x.already_booked)
       setS({
@@ -60,6 +71,7 @@ export default function TeacherDashboard() {
       })
       setSchedule((mySched.data ?? []) as ScheduleRow[])
       setActionable((swaps.data ?? []) as ActionableSwap[])
+      setRecentSwaps((recent.data ?? []) as RecentSwap[])
     })()
   }, [staff])
 
@@ -83,6 +95,23 @@ export default function TeacherDashboard() {
         <p className="text-sm text-slate-500">Loading…</p>
       ) : (
         <>
+          {recentSwaps.length > 0 && (
+            <Card className="mb-4 border-emerald-300 bg-emerald-50">
+              <p className="text-sm font-semibold text-emerald-900">
+                Your duties changed — recent swap{recentSwaps.length === 1 ? '' : 's'}
+              </p>
+              <ul className="mt-2 space-y-1 text-sm text-emerald-900">
+                {recentSwaps.map((r, i) => (
+                  <li key={i}>
+                    You gave <strong>{r.gave_day} {DUTY_TYPE_LABEL[r.gave_type]}</strong> and now have{' '}
+                    <strong>{r.got_day} {DUTY_TYPE_LABEL[r.got_type]}</strong> (swapped with{' '}
+                    {r.with_name}, {new Date(r.completed_at).toLocaleDateString()})
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
           {actionable.length > 0 && (
             <Card className="mb-4 border-indigo-300 bg-indigo-50">
               <div className="flex flex-wrap items-start justify-between gap-3">

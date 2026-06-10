@@ -88,6 +88,18 @@ export default function TeacherSwaps() {
         subtitle="Trade one of your duties with another teacher. Swaps stay within the same category (break ↔ break, lunch ↔ lunch)."
       />
 
+      <Card className="mb-4 border-indigo-200 bg-indigo-50/60">
+        <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">How swaps work</p>
+        <ol className="mt-1.5 list-decimal space-y-0.5 pl-4 text-sm text-slate-700">
+          <li>Post a request on the duty you want to give away (and which day you'd prefer instead).</li>
+          <li>A colleague offers one of their duties — or if someone already posted the opposite request, you're matched instantly.</li>
+          <li>
+            The moment you're matched, <strong>the swap happens automatically</strong> — duty, day and
+            location trade places. No admin approval needed. Check your dashboard to see your updated week.
+          </li>
+        </ol>
+      </Card>
+
       {err && <Card className="mb-4 border-rose-300 bg-rose-50 text-sm text-rose-700">{err}</Card>}
       {info && <Card className="mb-4 border-emerald-300 bg-emerald-50 text-sm text-emerald-800">{info}</Card>}
 

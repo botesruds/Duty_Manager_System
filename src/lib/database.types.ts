@@ -405,6 +405,29 @@ export type Database = {
           completed_at: string | null
         }[]
       }
+      my_recent_swaps: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          completed_at: string
+          gave_day: DayOfWeek
+          gave_type: DutyType
+          got_day: DayOfWeek
+          got_type: DutyType
+          with_name: string
+        }[]
+      }
+      admin_recent_swaps: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          completed_at: string
+          teacher_a: string
+          a_day: DayOfWeek
+          a_type: DutyType
+          teacher_b: string
+          b_day: DayOfWeek
+          b_type: DutyType
+        }[]
+      }
     }
     Enums: {
       duty_type: DutyType

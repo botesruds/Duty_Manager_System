@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { Badge, Button, Card, PageHeader } from '../../components/ui'
+import { DUTY_TYPE_LABEL, type DayOfWeek, type DutyType } from '../../lib/database.types'
 
 interface Counts {
   staff: number
@@ -9,23 +10,43 @@ interface Counts {
   attendanceToday: number
 }
 
+interface AdminSwap {
+  completed_at: string
+  teacher_a: string
+  a_day: DayOfWeek
+  a_type: DutyType
+  teacher_b: string
+  b_day: DayOfWeek
+  b_type: DutyType
+}
+
 export default function AdminOverview() {
   const [windowOpen, setWindowOpen] = useState<boolean | null>(null)
   const [published, setPublished] = useState<boolean | null>(null)
   const [counts, setCounts] = useState<Counts | null>(null)
   const [saving, setSaving] = useState(false)
+  const [swaps, setSwaps] = useState<AdminSwap[]>([])
+  const [openSwaps, setOpenSwaps] = useState(0)
 
   const load = async () => {
-    const [{ data: settings }, staff, slots, bookings, attendance] = await Promise.all([
-      supabase.from('app_settings').select('booking_window_open, schedule_published').eq('id', 1).single(),
-      supabase.from('staff').select('*', { count: 'exact', head: true }),
-      supabase.from('duty_slots').select('*', { count: 'exact', head: true }),
-      supabase.from('bookings').select('*', { count: 'exact', head: true }),
-      supabase
-        .from('attendance_records')
-        .select('*', { count: 'exact', head: true })
-        .eq('date', new Date().toISOString().slice(0, 10)),
-    ])
+    const [{ data: settings }, staff, slots, bookings, attendance, recentSwaps, openSwapReqs] =
+      await Promise.all([
+        supabase.from('app_settings').select('booking_window_open, schedule_published').eq('id', 1).single(),
+        supabase.from('staff').select('*', { count: 'exact', head: true }),
+        supabase.from('duty_slots').select('*', { count: 'exact', head: true }),
+        supabase.from('bookings').select('*', { count: 'exact', head: true }),
+        supabase
+          .from('attendance_records')
+          .select('*', { count: 'exact', head: true })
+          .eq('date', new Date().toISOString().slice(0, 10)),
+        supabase.rpc('admin_recent_swaps'),
+        supabase
+          .from('swap_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'open'),
+      ])
+    setSwaps((recentSwaps.data ?? []) as AdminSwap[])
+    setOpenSwaps(openSwapReqs.count ?? 0)
     setWindowOpen(settings?.booking_window_open ?? null)
     setPublished(settings?.schedule_published ?? null)
     setCounts({
@@ -91,6 +112,36 @@ export default function AdminOverview() {
         <Stat label="Bookings" value={counts?.bookings} />
         <Stat label="Attendance today" value={counts?.attendanceToday} />
       </div>
+
+      <Card className="mt-6">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-slate-700">Swap activity</p>
+          <Badge tone={openSwaps > 0 ? 'amber' : 'slate'}>
+            {openSwaps} open request{openSwaps === 1 ? '' : 's'}
+          </Badge>
+        </div>
+        <p className="mt-1 text-xs text-slate-500">
+          Teachers trade duties between themselves — swaps apply automatically once both sides agree.
+          Completed swaps are recorded here so the schedule never changes without a trace.
+        </p>
+        {swaps.length === 0 ? (
+          <p className="mt-3 text-sm italic text-slate-400">No completed swaps yet.</p>
+        ) : (
+          <ul className="mt-3 divide-y divide-slate-100 text-sm text-slate-700">
+            {swaps.map((s, i) => (
+              <li key={i} className="flex flex-wrap items-baseline justify-between gap-2 py-1.5">
+                <span>
+                  <strong>{s.teacher_a}</strong> ({s.a_day} {DUTY_TYPE_LABEL[s.a_type]}) ↔{' '}
+                  <strong>{s.teacher_b}</strong> ({s.b_day} {DUTY_TYPE_LABEL[s.b_type]})
+                </span>
+                <span className="text-xs text-slate-400">
+                  {new Date(s.completed_at).toLocaleString()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
     </div>
   )
 }
