@@ -1,7 +1,9 @@
-// POST { rows: Array<{ emp_no, name, department, duty_quota_break?, duty_quota_lunch? }> }
+// POST { rows: Array<{ emp_no, name, department, duty_quota_break?, duty_quota_lunch? }>, dry_run? }
 // Admin only. Upserts staff by emp_no. For new staff, creates a Supabase Auth user
 // (email = `${emp_no}@duty.internal`, password = Duties2026!) and a profile linking them.
 // Existing staff have their fields updated but auth accounts and passwords are left alone.
+// With dry_run: true, nothing is written — returns what WOULD be created/updated plus
+// validation errors and departments that would be auto-created.
 
 import {
   CORS_HEADERS,
@@ -39,6 +41,7 @@ Deno.serve(async (req) => {
     const { svc } = await requireAdmin(req)
     const body = await req.json().catch(() => null)
     const rows: CsvRow[] = body?.rows ?? []
+    const dryRun = body?.dry_run === true
     if (!Array.isArray(rows) || rows.length === 0) {
       throw new HttpError(400, 'Body must include a non-empty rows array')
     }
@@ -53,8 +56,37 @@ Deno.serve(async (req) => {
       .in('name', deptNames)
     const deptByName = new Map<string, string>((deptRows ?? []).map((d) => [d.name, d.id]))
 
-    // Auto-create departments that don't exist yet (with zero quotas — admin can edit later).
     const missing = deptNames.filter((n) => !deptByName.has(n))
+
+    if (dryRun) {
+      // Validate and classify without writing anything.
+      const validEmpNos: string[] = []
+      for (const row of rows) {
+        const emp_no = String(row.emp_no ?? '').trim()
+        const name = String(row.name ?? '').trim()
+        if (!/^[0-9]+$/.test(emp_no)) {
+          result.errors.push({ emp_no, message: 'emp_no must be numeric' })
+          continue
+        }
+        if (!name) {
+          result.errors.push({ emp_no, message: 'name is required' })
+          continue
+        }
+        validEmpNos.push(emp_no)
+      }
+      const { data: existingRows } = await svc
+        .from('staff')
+        .select('emp_no')
+        .in('emp_no', validEmpNos)
+      const existingSet = new Set((existingRows ?? []).map((r) => r.emp_no))
+      for (const e of validEmpNos) {
+        if (existingSet.has(e)) result.updated++
+        else result.created++
+      }
+      return jsonResponse({ ...result, dry_run: true, new_departments: missing })
+    }
+
+    // Auto-create departments that don't exist yet (with zero quotas — admin can edit later).
     if (missing.length) {
       const { data: inserted, error } = await svc
         .from('departments')

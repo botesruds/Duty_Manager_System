@@ -19,6 +19,13 @@ export default function SelfReport() {
   const [published, setPublished] = useState<boolean | null>(null)
   const [busy, setBusy] = useState<string | null>(null)
   const [err, setErr] = useState<string | null>(null)
+  const [info, setInfo] = useState<string | null>(null)
+
+  const today = new Date().toLocaleDateString(undefined, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  })
 
   const load = async () => {
     const [{ data: settings }, { data, error }] = await Promise.all([
@@ -35,6 +42,7 @@ export default function SelfReport() {
 
   const onMark = async (d: MyDuty) => {
     setErr(null)
+    setInfo(null)
     setBusy(d.booking_id)
     const { error } = await supabase.rpc('mark_attendance', {
       p_booking_id: d.booking_id,
@@ -45,13 +53,15 @@ export default function SelfReport() {
       setErr(error.message)
       return
     }
+    setInfo(`You're marked present for ${DUTY_TYPE_LABEL[d.duty_type]} duty. ✓`)
     await load()
   }
 
   return (
     <div>
-      <PageHeader title="Today’s duty" subtitle="Tap to mark yourself present." />
+      <PageHeader title="Today’s duty" subtitle={`${today} — tap to mark yourself present.`} />
       {err && <Card className="mb-4 border-rose-300 bg-rose-50 text-sm text-rose-700">{err}</Card>}
+      {info && <Card className="mb-4 border-emerald-300 bg-emerald-50 text-sm text-emerald-800">{info}</Card>}
       {published === false ? (
         <Card className="border-amber-300 bg-amber-50 text-sm text-amber-900">
           <p className="font-medium">Schedule not yet published.</p>

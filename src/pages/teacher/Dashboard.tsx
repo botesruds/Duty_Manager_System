@@ -200,6 +200,7 @@ export default function TeacherDashboard() {
 function RemainingCard({ label, booked, quota }: { label: string; booked: number; quota: number }) {
   const remaining = Math.max(quota - booked, 0)
   const done = quota > 0 && booked >= quota
+  const pct = quota > 0 ? Math.min(100, (booked / quota) * 100) : 0
   return (
     <Card className="text-center">
       <p className="text-sm font-medium text-slate-600">{label}</p>
@@ -207,8 +208,14 @@ function RemainingCard({ label, booked, quota }: { label: string; booked: number
         {remaining}
       </p>
       <p className="mt-1 text-sm text-slate-500">
-        still to book — {booked} of {quota} done
+        {done ? 'all booked' : 'still to book'} — {booked} of {quota} done
       </p>
+      <div className="mx-auto mt-2 h-1.5 w-3/4 rounded-full bg-slate-100">
+        <div
+          className={`h-1.5 rounded-full transition-all ${done ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
     </Card>
   )
 }

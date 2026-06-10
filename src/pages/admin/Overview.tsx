@@ -11,12 +11,13 @@ interface Counts {
 
 export default function AdminOverview() {
   const [windowOpen, setWindowOpen] = useState<boolean | null>(null)
+  const [published, setPublished] = useState<boolean | null>(null)
   const [counts, setCounts] = useState<Counts | null>(null)
   const [saving, setSaving] = useState(false)
 
   const load = async () => {
     const [{ data: settings }, staff, slots, bookings, attendance] = await Promise.all([
-      supabase.from('app_settings').select('booking_window_open').eq('id', 1).single(),
+      supabase.from('app_settings').select('booking_window_open, schedule_published').eq('id', 1).single(),
       supabase.from('staff').select('*', { count: 'exact', head: true }),
       supabase.from('duty_slots').select('*', { count: 'exact', head: true }),
       supabase.from('bookings').select('*', { count: 'exact', head: true }),
@@ -26,6 +27,7 @@ export default function AdminOverview() {
         .eq('date', new Date().toISOString().slice(0, 10)),
     ])
     setWindowOpen(settings?.booking_window_open ?? null)
+    setPublished(settings?.schedule_published ?? null)
     setCounts({
       staff: staff.count ?? 0,
       slots: slots.count ?? 0,
@@ -40,6 +42,13 @@ export default function AdminOverview() {
 
   const toggleWindow = async () => {
     if (windowOpen === null) return
+    if (
+      windowOpen &&
+      !confirm(
+        'Close the booking window?\n\nTeachers will no longer be able to book or cancel duties until you reopen it.',
+      )
+    )
+      return
     setSaving(true)
     const { error } = await supabase
       .from('app_settings')
@@ -52,6 +61,11 @@ export default function AdminOverview() {
   return (
     <div>
       <PageHeader title="Overview" subtitle="Booking window state and at-a-glance counts." />
+
+      {windowOpen !== null && published !== null && (
+        <WorkflowStrip windowOpen={windowOpen} published={published} />
+      )}
+
       <Card className="mb-6 flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-slate-700">Booking window</p>
@@ -78,6 +92,47 @@ export default function AdminOverview() {
         <Stat label="Attendance today" value={counts?.attendanceToday} />
       </div>
     </div>
+  )
+}
+
+// Shows where the term cycle currently stands and flags the inconsistent
+// "window open while the schedule is live" state so it can't go unnoticed.
+function WorkflowStrip({ windowOpen, published }: { windowOpen: boolean; published: boolean }) {
+  const steps = [
+    { label: '1. Teachers book', active: windowOpen && !published },
+    { label: '2. Assign locations & publish', active: !windowOpen && !published },
+    { label: '3. Schedule live', active: published && !windowOpen },
+  ]
+  const conflicted = windowOpen && published
+  return (
+    <Card
+      className={`mb-6 ${conflicted ? 'border-amber-300 bg-amber-50' : ''}`}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="mr-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Where you are
+        </p>
+        {steps.map((s) => (
+          <span
+            key={s.label}
+            className={`rounded-full px-3 py-1 text-xs font-medium ${
+              s.active
+                ? 'bg-indigo-600 text-white'
+                : 'bg-slate-100 text-slate-500'
+            }`}
+          >
+            {s.label}
+          </span>
+        ))}
+      </div>
+      {conflicted && (
+        <p className="mt-2 text-sm text-amber-900">
+          The booking window is <strong>open</strong> while the schedule is <strong>published</strong> —
+          teachers can change bookings on a live schedule. Usually you'd close the window before
+          publishing, or unpublish before reopening it.
+        </p>
+      )}
+    </Card>
   )
 }
 

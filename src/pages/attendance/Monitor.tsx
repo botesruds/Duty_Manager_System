@@ -25,6 +25,7 @@ export default function Monitor() {
   const [rows, setRows] = useState<Duty[]>([])
   const [published, setPublished] = useState<boolean | null>(null)
   const [busy, setBusy] = useState<string | null>(null)
+  const [bulkBusy, setBulkBusy] = useState<DutyType | null>(null)
   const [err, setErr] = useState<string | null>(null)
 
   const load = useCallback(async () => {
@@ -73,6 +74,33 @@ export default function Monitor() {
     await load()
   }
 
+  const onConfirmAll = async (type: DutyType, items: Duty[]) => {
+    const pending = items.filter((d) => !d.monitor_marked_at)
+    if (pending.length === 0) return
+    if (
+      !confirm(
+        `Confirm all ${pending.length} remaining ${DUTY_TYPE_LABEL[type]} dut${
+          pending.length === 1 ? 'y' : 'ies'
+        } as present?\n\nOnly do this if you've actually seen everyone at their location.`,
+      )
+    )
+      return
+    setErr(null)
+    setBulkBusy(type)
+    for (const d of pending) {
+      const { error } = await supabase.rpc('mark_attendance', {
+        p_booking_id: d.booking_id,
+        p_by_monitor: true,
+      })
+      if (error) {
+        setErr(`Stopped at ${d.staff_name}: ${error.message}`)
+        break
+      }
+    }
+    setBulkBusy(null)
+    await load()
+  }
+
   return (
     <div>
       <PageHeader
@@ -103,8 +131,17 @@ export default function Monitor() {
                   <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
                     {DUTY_TYPE_LABEL[type]} duty
                   </h2>
-                  <span className="text-xs text-slate-500">
+                  <span className="flex items-center gap-2 text-xs text-slate-500">
                     Self {selfDone}/{items.length} · Monitor {monitorDone}/{items.length}
+                    {monitorDone < items.length && (
+                      <Button
+                        variant="secondary"
+                        disabled={bulkBusy !== null}
+                        onClick={() => onConfirmAll(type, items)}
+                      >
+                        {bulkBusy === type ? 'Confirming…' : `Confirm all (${items.length - monitorDone})`}
+                      </Button>
+                    )}
                   </span>
                 </div>
                 <Card className="overflow-hidden p-0">

@@ -133,7 +133,10 @@ export default function AdminSchedule() {
     async (e: DragEvent) => {
       e.preventDefault()
       const bookingId = e.dataTransfer.getData(DRAG_MIME)
-      if (!bookingId) return
+      if (!bookingId) {
+        setErr('That drag didn’t register — please try dragging the name again.')
+        return
+      }
       const booking = bookings.find((b) => b.booking_id === bookingId)
       if (!booking) return
       if (booking.duty_type !== location.duty_type) {
@@ -195,6 +198,36 @@ export default function AdminSchedule() {
 
   const onTogglePublish = async () => {
     if (published === null) return
+    if (!published) {
+      // Publishing affects the whole week, but this page only shows one day —
+      // check every day's bookings before going live.
+      const [unassignedRes, offSeasonRes] = await Promise.all([
+        supabase.from('bookings').select('id', { count: 'exact', head: true }).is('location_id', null),
+        season
+          ? supabase
+              .from('bookings')
+              .select('id, locations!inner(category)', { count: 'exact', head: true })
+              .neq('locations.category', season)
+          : Promise.resolve({ count: 0, error: null }),
+      ])
+      const unassigned = unassignedRes.count ?? 0
+      const offSeason = offSeasonRes.count ?? 0
+      const warnings: string[] = []
+      if (unassigned > 0)
+        warnings.push(`${unassigned} booking${unassigned === 1 ? ' has' : 's have'} no location yet`)
+      if (offSeason > 0)
+        warnings.push(
+          `${offSeason} booking${offSeason === 1 ? ' is' : 's are'} assigned to off-season locations`,
+        )
+      if (warnings.length > 0) {
+        const proceed = confirm(
+          `The schedule isn't complete (across the whole week):\n\n• ${warnings.join(
+            '\n• ',
+          )}\n\nTeachers only see duties with an assigned in-season location — the rest will show as "awaiting location".\n\nPublish anyway?`,
+        )
+        if (!proceed) return
+      }
+    }
     setSavingPublish(true)
     const { error } = await supabase
       .from('app_settings')
@@ -279,6 +312,20 @@ export default function AdminSchedule() {
               <span className="text-slate-400"> · {totalCapacity} slots total</span>
             )}
           </span>
+          <span className="hidden items-center gap-1.5 lg:flex">
+            {TYPE_ORDER.map((t) => {
+              const locCount = (locationsByType.get(t) ?? []).length
+              if (locCount === 0) return null
+              const ofType = bookings.filter((b) => b.duty_type === t)
+              const filled = ofType.filter((b) => effectiveLocKey(b)).length
+              // Green = no one of this type left to place; amber = work remaining.
+              return (
+                <Badge key={t} tone={filled >= ofType.length ? 'green' : 'amber'}>
+                  {DUTY_TYPE_LABEL[t]} {filled}/{locCount}
+                </Badge>
+              )
+            })}
+          </span>
           {season && (
             <Badge tone={season === 'indoor' ? 'amber' : 'green'}>
               {season === 'indoor' ? 'Indoor' : 'Outdoor'}
@@ -311,7 +358,7 @@ export default function AdminSchedule() {
       ) : (
         <>
           <Card
-            className="sticky top-0 z-20 mb-4 shadow-md"
+            className="sticky top-14 z-20 mb-4 shadow-md"
             onDragOver={allowDrop}
             onDrop={handleDropToUnassigned}
           >

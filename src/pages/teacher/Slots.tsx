@@ -109,11 +109,14 @@ export default function TeacherSlots() {
         subtitle="Tap a slot to claim it. Spots fill up first-come, first-served."
       />
 
-      <Card className="sticky top-0 z-20 mb-4 shadow-md">
+      <Card className="sticky top-14 z-20 mb-4 shadow-md">
         <div className="grid grid-cols-2 gap-4">
           <QuotaCounter label="Break" booked={breakBooked} quota={breakQuota} />
           <QuotaCounter label="Lunch" booked={lunchBooked} quota={lunchQuota} />
         </div>
+        <p className="mt-2 text-[11px] text-slate-400">
+          Lunch A and Lunch B are the two lunch sittings — they share your lunch quota.
+        </p>
       </Card>
 
       {!windowOpen && (
@@ -167,6 +170,8 @@ export default function TeacherSlots() {
                           </div>
                         ) : full ? (
                           <Badge tone="rose">Full</Badge>
+                        ) : (s.duty_type === 'break' ? breakBooked >= breakQuota : lunchBooked >= lunchQuota) ? (
+                          <Badge tone="slate">Quota reached</Badge>
                         ) : (
                           <Button disabled={!windowOpen || busy === s.id} onClick={() => onBook(s)}>
                             {busy === s.id ? '…' : 'Book'}
@@ -188,21 +193,30 @@ export default function TeacherSlots() {
 function QuotaCounter({ label, booked, quota }: { label: string; booked: number; quota: number }) {
   const remaining = Math.max(quota - booked, 0)
   const done = quota > 0 && booked >= quota
+  const pct = quota > 0 ? Math.min(100, (booked / quota) * 100) : 0
   return (
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
-        <p className="mt-0.5 text-sm text-slate-700">
-          <strong>{booked}</strong> of {quota} booked
-        </p>
+    <div>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
+          <p className="mt-0.5 text-sm text-slate-700">
+            <strong>{booked}</strong> of {quota} booked
+          </p>
+        </div>
+        <div className="text-right">
+          <p className={`text-2xl font-bold leading-none ${done ? 'text-emerald-600' : 'text-indigo-600'}`}>
+            {remaining}
+          </p>
+          <p className="mt-0.5 text-[10px] uppercase tracking-wide text-slate-500">
+            {done ? 'all done' : 'to go'}
+          </p>
+        </div>
       </div>
-      <div className="text-right">
-        <p className={`text-2xl font-bold leading-none ${done ? 'text-emerald-600' : 'text-indigo-600'}`}>
-          {remaining}
-        </p>
-        <p className="mt-0.5 text-[10px] uppercase tracking-wide text-slate-500">
-          {done ? 'all done' : 'to go'}
-        </p>
+      <div className="mt-1.5 h-1.5 w-full rounded-full bg-slate-100">
+        <div
+          className={`h-1.5 rounded-full transition-all ${done ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
     </div>
   )

@@ -4,7 +4,9 @@ import { supabase } from '../../lib/supabase'
 import {
   adminResetPassword,
   deleteStaff,
+  previewUploadStaff,
   uploadStaff,
+  type UploadPreview,
   type UploadResult,
   type UploadStaffRow,
 } from '../../lib/edgeFunctions'
@@ -32,6 +34,9 @@ export default function AdminStaff() {
   const [departments, setDepartments] = useState<Dept[]>([])
   const [uploading, setUploading] = useState(false)
   const [result, setResult] = useState<UploadResult | null>(null)
+  const [pending, setPending] = useState<{ rows: UploadStaffRow[]; preview: UploadPreview } | null>(
+    null,
+  )
   const [err, setErr] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
   const [resetting, setResetting] = useState<string | null>(null)
@@ -78,6 +83,7 @@ export default function AdminStaff() {
   const onFile = (file: File) => {
     setErr(null)
     setResult(null)
+    setPending(null)
     Papa.parse<UploadStaffRow>(file, {
       header: true,
       skipEmptyLines: true,
@@ -88,9 +94,9 @@ export default function AdminStaff() {
         }
         setUploading(true)
         try {
-          const res = await uploadStaff(parsed.data)
-          setResult(res)
-          await load()
+          // Dry run first so the admin can review what will happen before it does.
+          const preview = await previewUploadStaff(parsed.data)
+          setPending({ rows: parsed.data, preview })
         } catch (e) {
           setErr(e instanceof Error ? e.message : 'Upload failed')
         } finally {
@@ -99,6 +105,22 @@ export default function AdminStaff() {
         }
       },
     })
+  }
+
+  const applyUpload = async () => {
+    if (!pending) return
+    setUploading(true)
+    setErr(null)
+    try {
+      const res = await uploadStaff(pending.rows)
+      setResult(res)
+      setPending(null)
+      await load()
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Upload failed')
+    } finally {
+      setUploading(false)
+    }
   }
 
   const onReset = async (staff_id: string) => {
@@ -207,6 +229,45 @@ export default function AdminStaff() {
           created with the default password and forced to change it on first login.
         </p>
       </Card>
+
+      {pending && (
+        <Card className="mb-4 border-indigo-300 bg-indigo-50">
+          <p className="text-sm font-medium text-slate-900">Review before applying</p>
+          <p className="mt-1 text-sm text-slate-700">
+            This file will add <strong>{pending.preview.created}</strong> new staff and update{' '}
+            <strong>{pending.preview.updated}</strong> existing.
+            {pending.preview.new_departments.length > 0 && (
+              <>
+                {' '}New department{pending.preview.new_departments.length === 1 ? '' : 's'} will be
+                created: <strong>{pending.preview.new_departments.join(', ')}</strong>.
+              </>
+            )}
+          </p>
+          {pending.preview.errors.length > 0 && (
+            <div className="mt-2">
+              <p className="text-xs font-medium text-rose-700">
+                {pending.preview.errors.length} row{pending.preview.errors.length === 1 ? '' : 's'} will
+                be skipped:
+              </p>
+              <ul className="mt-1 max-h-32 overflow-auto text-xs text-rose-700">
+                {pending.preview.errors.map((e, i) => (
+                  <li key={i}>
+                    {e.emp_no || '(blank)'}: {e.message}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div className="mt-3 flex gap-2">
+            <Button onClick={applyUpload} disabled={uploading}>
+              {uploading ? 'Applying…' : 'Apply changes'}
+            </Button>
+            <Button variant="secondary" onClick={() => setPending(null)} disabled={uploading}>
+              Discard
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {result && (
         <Card className="mb-4">

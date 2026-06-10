@@ -343,10 +343,18 @@ function TakeModal({
   const [eligible, setEligible] = useState<EligibleBooking[] | null>(null)
   const [chosen, setChosen] = useState<string>('')
   const [submitting, setSubmitting] = useState(false)
+  const [loadErr, setLoadErr] = useState<string | null>(null)
 
   useEffect(() => {
     void (async () => {
-      const { data } = await supabase.rpc('eligible_takes_for', { p_request_id: request.request_id })
+      const { data, error } = await supabase.rpc('eligible_takes_for', {
+        p_request_id: request.request_id,
+      })
+      if (error) {
+        // Without this, a network hiccup looked like "you have no matching booking".
+        setLoadErr(error.message)
+        return
+      }
       setEligible((data ?? []) as EligibleBooking[])
       if ((data ?? []).length === 1) setChosen((data ?? [])[0].booking_id)
     })()
@@ -375,7 +383,11 @@ function TakeModal({
         <strong>{request.source_day} {DUTY_TYPE_LABEL[request.source_duty_type]}</strong> and take{' '}
         <strong>{request.target_day ?? 'any other day'}</strong>.
       </p>
-      {eligible === null ? (
+      {loadErr ? (
+        <p className="rounded-md bg-rose-50 p-3 text-sm text-rose-700">
+          Couldn't load your bookings ({loadErr}). Close this window and try again.
+        </p>
+      ) : eligible === null ? (
         <p className="text-sm text-slate-500">Checking your bookings…</p>
       ) : eligible.length === 0 ? (
         <p className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
