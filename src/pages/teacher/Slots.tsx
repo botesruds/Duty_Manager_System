@@ -204,7 +204,7 @@ function QuotaCounter({ label, booked, quota }: { label: string; booked: number;
           </p>
         </div>
         <div className="text-right">
-          <p className={`text-2xl font-bold leading-none ${done ? 'text-emerald-600' : 'text-indigo-600'}`}>
+          <p className={`text-2xl font-bold leading-none ${done ? 'text-emerald-600' : 'text-brand-600'}`}>
             {remaining}
           </p>
           <p className="mt-0.5 text-[10px] uppercase tracking-wide text-slate-500">
@@ -214,7 +214,7 @@ function QuotaCounter({ label, booked, quota }: { label: string; booked: number;
       </div>
       <div className="mt-1.5 h-1.5 w-full rounded-full bg-slate-100">
         <div
-          className={`h-1.5 rounded-full transition-all ${done ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+          className={`h-1.5 rounded-full transition-all ${done ? 'bg-emerald-500' : 'bg-brand-500'}`}
           style={{ width: `${pct}%` }}
         />
       </div>

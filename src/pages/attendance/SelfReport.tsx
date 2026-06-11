@@ -103,7 +103,7 @@ export default function SelfReport() {
                   <span>Self-marked at {new Date(d.self_marked_at).toLocaleTimeString()}</span>
                 )}
                 {d.monitor_marked_at ? (
-                  <span className="rounded bg-indigo-50 px-2 py-0.5 text-indigo-700">
+                  <span className="rounded bg-brand-50 px-2 py-0.5 text-brand-700">
                     Confirmed by monitor{d.monitor_name ? ` (${d.monitor_name})` : ''} at{' '}
                     {new Date(d.monitor_marked_at).toLocaleTimeString()}
                   </span>

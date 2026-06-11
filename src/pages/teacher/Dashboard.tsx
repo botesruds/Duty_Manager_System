@@ -113,15 +113,15 @@ export default function TeacherDashboard() {
           )}
 
           {actionable.length > 0 && (
-            <Card className="mb-4 border-indigo-300 bg-indigo-50">
+            <Card className="mb-4 border-brand-300 bg-brand-50">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-indigo-900">
+                  <p className="text-sm font-semibold text-brand-900">
                     {actionable.length === 1
                       ? '1 swap request needs your attention'
                       : `${actionable.length} swap requests need your attention`}
                   </p>
-                  <ul className="mt-2 space-y-1 text-sm text-indigo-900">
+                  <ul className="mt-2 space-y-1 text-sm text-brand-900">
                     {actionable.slice(0, 3).map((r) => (
                       <li key={r.request_id}>
                         <strong>{r.requester_name}</strong> wants{' '}
@@ -131,7 +131,7 @@ export default function TeacherDashboard() {
                       </li>
                     ))}
                     {actionable.length > 3 && (
-                      <li className="italic text-indigo-700">+{actionable.length - 3} more</li>
+                      <li className="italic text-brand-700">+{actionable.length - 3} more</li>
                     )}
                   </ul>
                 </div>
@@ -178,7 +178,7 @@ export default function TeacherDashboard() {
             {schedule.length === 0 ? (
               <EmptyState
                 title="You haven't booked any duties yet"
-                body={<>Head to <Link to="/teacher/slots" className="text-indigo-700 underline">Browse slots</Link> to pick yours.</>}
+                body={<>Head to <Link to="/teacher/slots" className="text-brand-700 underline">Browse slots</Link> to pick yours.</>}
               />
             ) : (
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -233,7 +233,7 @@ function RemainingCard({ label, booked, quota }: { label: string; booked: number
   return (
     <Card className="text-center">
       <p className="text-sm font-medium text-slate-600">{label}</p>
-      <p className={`mt-2 text-5xl font-bold ${done ? 'text-emerald-600' : 'text-indigo-600'}`}>
+      <p className={`mt-2 text-5xl font-bold ${done ? 'text-emerald-600' : 'text-brand-600'}`}>
         {remaining}
       </p>
       <p className="mt-1 text-sm text-slate-500">
@@ -241,7 +241,7 @@ function RemainingCard({ label, booked, quota }: { label: string; booked: number
       </p>
       <div className="mx-auto mt-2 h-1.5 w-3/4 rounded-full bg-slate-100">
         <div
-          className={`h-1.5 rounded-full transition-all ${done ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+          className={`h-1.5 rounded-full transition-all ${done ? 'bg-emerald-500' : 'bg-brand-500'}`}
           style={{ width: `${pct}%` }}
         />
       </div>

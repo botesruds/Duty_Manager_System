@@ -104,7 +104,7 @@ export default function AdminLocations() {
               key={c}
               onClick={() => setActiveCategory(c)}
               className={`rounded-md px-3 py-1 text-sm font-medium capitalize transition ${
-                activeCategory === c ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+                activeCategory === c ? 'bg-brand-600 text-white' : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               {c}
@@ -154,7 +154,7 @@ export default function AdminLocations() {
                 return (
                   <li
                     key={l.id}
-                    className="inline-flex items-center gap-1 rounded-md border border-indigo-300 bg-indigo-50 px-2 py-1 text-sm"
+                    className="inline-flex items-center gap-1 rounded-md border border-brand-300 bg-brand-50 px-2 py-1 text-sm"
                   >
                     <input
                       autoFocus
@@ -164,7 +164,7 @@ export default function AdminLocations() {
                         if (e.key === 'Enter') void saveEdit()
                         else if (e.key === 'Escape') cancelEdit()
                       }}
-                      className="w-32 rounded border border-slate-300 bg-white px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="w-32 rounded border border-slate-300 bg-white px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500"
                     />
                     <select
                       value={editingCategory}
@@ -193,7 +193,7 @@ export default function AdminLocations() {
                 >
                   <button
                     onClick={() => startEdit(l)}
-                    className="hover:text-indigo-700"
+                    className="hover:text-brand-700"
                     title="Click to rename or change category"
                   >
                     {l.name}

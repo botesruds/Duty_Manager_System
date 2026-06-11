@@ -5,12 +5,21 @@ import { signOut } from '../lib/auth'
 import { supabase } from '../lib/supabase'
 
 const linkBase =
-  'shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition'
-const linkInactive = 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-const linkActive = 'bg-indigo-50 text-indigo-700'
+  'shrink-0 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-colors'
+const linkInactive = 'text-brand-200 hover:bg-white/10 hover:text-white'
+const linkActive = 'bg-white/15 text-white'
 
 const cls = ({ isActive }: { isActive: boolean }) =>
   `${linkBase} ${isActive ? linkActive : linkInactive}`
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase())
+    .join('')
+}
 
 export default function AppLayout() {
   const { profile, staff } = useAuth()
@@ -38,12 +47,17 @@ export default function AppLayout() {
     nav('/login', { replace: true })
   }
 
+  const displayName = staff?.name ?? (isAdmin ? 'Admin' : isMonitor ? 'Monitor' : '')
+
   return (
     <div className="min-h-full">
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-          <Link to="/" className="shrink-0 text-base font-semibold text-slate-900">
-            Duty Manager
+      <header className="sticky top-0 z-40 border-b border-brand-800 bg-brand-900 text-white shadow-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2.5">
+          <Link to="/" className="flex shrink-0 items-center gap-2.5">
+            <img src="/brand/wso-mark.png" alt="WSO" className="h-[18px] w-auto" />
+            <span className="font-display text-sm font-semibold tracking-tight text-white">
+              Duty Manager
+            </span>
           </Link>
           <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
             {isAdmin && (
@@ -66,7 +80,7 @@ export default function AppLayout() {
                   <span className="whitespace-nowrap">
                     Request a swap
                     {swapCount > 0 && (
-                      <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-indigo-600 px-1 text-[10px] font-semibold text-white">
+                      <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-gold-500 px-1 text-[10px] font-semibold text-brand-900">
                         {swapCount}
                       </span>
                     )}
@@ -80,10 +94,20 @@ export default function AppLayout() {
             )}
           </nav>
           <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-slate-600 sm:inline">
-              {staff?.name ?? (isAdmin ? 'Admin' : isMonitor ? 'Monitor' : '')}
-            </span>
-            <button onClick={handleSignOut} className="text-sm text-slate-500 hover:text-slate-900">Sign out</button>
+            {displayName && (
+              <span
+                className="hidden h-8 w-8 items-center justify-center rounded-full bg-gold-500 text-xs font-bold text-brand-900 sm:flex"
+                title={displayName}
+              >
+                {initials(displayName)}
+              </span>
+            )}
+            <button
+              onClick={handleSignOut}
+              className="text-sm text-brand-200 transition-colors hover:text-white"
+            >
+              Sign out
+            </button>
           </div>
         </div>
       </header>

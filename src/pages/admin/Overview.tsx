@@ -168,7 +168,7 @@ function WorkflowStrip({ windowOpen, published }: { windowOpen: boolean; publish
             key={s.label}
             className={`rounded-full px-3 py-1 text-xs font-medium ${
               s.active
-                ? 'bg-indigo-600 text-white'
+                ? 'bg-brand-600 text-white'
                 : 'bg-slate-100 text-slate-500'
             }`}
           >

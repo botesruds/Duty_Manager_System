@@ -88,8 +88,8 @@ export default function TeacherSwaps() {
         subtitle="Trade one of your duties with another teacher. Swaps stay within the same category (break ↔ break, lunch ↔ lunch)."
       />
 
-      <Card className="mb-4 border-indigo-200 bg-indigo-50/60">
-        <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">How swaps work</p>
+      <Card className="mb-4 border-brand-200 bg-brand-50/60">
+        <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">How swaps work</p>
         <ol className="mt-1.5 list-decimal space-y-0.5 pl-4 text-sm text-slate-700">
           <li>Post a request on the duty you want to give away (and which day you'd prefer instead).</li>
           <li>A colleague offers one of their duties — or if someone already posted the opposite request, you're matched instantly.</li>
@@ -414,7 +414,7 @@ function TakeModal({
             <label
               key={b.booking_id}
               className={`flex cursor-pointer items-center justify-between rounded-md border p-2 text-sm ${
-                chosen === b.booking_id ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200'
+                chosen === b.booking_id ? 'border-brand-500 bg-brand-50' : 'border-slate-200'
               }`}
             >
               <span>

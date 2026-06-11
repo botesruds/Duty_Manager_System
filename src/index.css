@@ -1,9 +1,40 @@
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&display=swap");
 @import "tailwindcss";
 
-html, body, #root {
+@theme {
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+
+  /* WSO brand — royal blue to navy (from the school mark) */
+  --color-brand-50: #eff5fb;
+  --color-brand-100: #dce9f7;
+  --color-brand-200: #b9d2ee;
+  --color-brand-300: #8ab3e0;
+  --color-brand-400: #5189c9;
+  --color-brand-500: #2d69b0;
+  --color-brand-600: #1e5699;
+  --color-brand-700: #17447d;
+  --color-brand-800: #122f59;
+  --color-brand-900: #0e2347;
+
+  /* WSO gold */
+  --color-gold-100: #fdf0d2;
+  --color-gold-400: #f7bc3d;
+  --color-gold-500: #f5a800;
+  --color-gold-600: #d18f00;
+}
+
+html,
+body,
+#root {
   height: 100%;
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  @apply bg-[#f4f6fa] text-slate-900 antialiased;
+}
+
+h1,
+h2 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }

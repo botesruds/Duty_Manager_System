@@ -210,7 +210,7 @@ export default function AdminStaff() {
           <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">
             <strong className="mr-1">{rows.filter((r) => r.profile?.is_admin).length}</strong> admin
           </span>
-          <span className="inline-flex items-center rounded-full bg-indigo-100 px-2.5 py-1 text-indigo-800">
+          <span className="inline-flex items-center rounded-full bg-brand-100 px-2.5 py-1 text-brand-800">
             <strong className="mr-1">{rows.filter((r) => r.profile?.is_monitor).length}</strong> monitor{rows.filter((r) => r.profile?.is_monitor).length === 1 ? '' : 's'}
           </span>
           <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">
@@ -231,7 +231,7 @@ export default function AdminStaff() {
       </Card>
 
       {pending && (
-        <Card className="mb-4 border-indigo-300 bg-indigo-50">
+        <Card className="mb-4 border-brand-300 bg-brand-50">
           <p className="text-sm font-medium text-slate-900">Review before applying</p>
           <p className="mt-1 text-sm text-slate-700">
             This file will add <strong>{pending.preview.created}</strong> new staff and update{' '}
@@ -328,8 +328,8 @@ export default function AdminStaff() {
                         }
                         className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${
                           s.profile?.is_monitor
-                            ? 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200'
-                            : 'bg-slate-100 text-slate-700 hover:bg-indigo-100 hover:text-indigo-800'
+                            ? 'bg-brand-100 text-brand-800 hover:bg-brand-200'
+                            : 'bg-slate-100 text-slate-700 hover:bg-brand-100 hover:text-brand-800'
                         }`}
                       >
                         {s.profile?.is_monitor ? '✓ Monitor' : 'Teacher'}

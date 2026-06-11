@@ -297,7 +297,7 @@ export default function AdminSchedule() {
               onClick={() => setDay(d)}
               className={`rounded-md px-4 py-1.5 font-medium ${
                 day === d
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-brand-600 text-white'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
@@ -350,7 +350,7 @@ export default function AdminSchedule() {
           title={`No locations configured for ${day}`}
           body={
             <>
-              Go to <Link className="text-indigo-700 underline" to="/admin/locations">Locations</Link> to define
+              Go to <Link className="text-brand-700 underline" to="/admin/locations">Locations</Link> to define
               physical locations and set their capacity for this day.
             </>
           }
@@ -409,7 +409,7 @@ export default function AdminSchedule() {
                         className={`p-3 transition ${
                           dragging
                             ? droppable
-                              ? 'border-indigo-400 ring-1 ring-indigo-200'
+                              ? 'border-brand-400 ring-1 ring-brand-200'
                               : 'opacity-40'
                             : ''
                         }`}
