@@ -96,6 +96,8 @@ export default function AdminStaff() {
     staff_name: 'name',
     department: 'department',
     dept: 'department',
+    subject: 'subject',
+    main_subject: 'subject',
     year_group: 'year_group',
     yeargroup: 'year_group',
     year: 'year_group',
@@ -190,6 +192,26 @@ export default function AdminStaff() {
     }
   }
 
+  const onQuotaChange = async (
+    row: StaffRow,
+    field: 'duty_quota_break' | 'duty_quota_lunch',
+    value: number | null,
+  ) => {
+    setErr(null)
+    setInfo(null)
+    const patch =
+      field === 'duty_quota_break' ? { duty_quota_break: value } : { duty_quota_lunch: value }
+    const { error } = await supabase.from('staff').update(patch).eq('id', row.id)
+    if (error) {
+      setErr(error.message)
+      return
+    }
+    setInfo(
+      `${row.name} now has ${value ?? 'the group default'} ${field === 'duty_quota_break' ? 'break' : 'lunch'} dut${value === 1 ? 'y' : 'ies'}${value === null ? '' : ' to book'}.`,
+    )
+    await load()
+  }
+
   const onToggleMonitor = async (row: StaffRow) => {
     if (!row.profile) {
       alert('This staff member has no linked account yet.')
@@ -256,10 +278,11 @@ export default function AdminStaff() {
         </code>
         <p className="mt-1 text-xs text-slate-500">
           Save the shared staff sheet as CSV and upload it — this platform reads the employment
-          number, name, and duty group (department if set, otherwise year group) and ignores the
-          rest. Quotas are optional per row — blank inherits from the group default. New staff are
-          created with the default password and forced to change it on first login; re-uploads
-          update existing staff by employment number.
+          number, name, duty quotas, and the duty group (<strong>subject</strong> if set,
+          otherwise year group, otherwise department) and ignores the rest. Quotas are optional
+          per row — blank inherits from the group default. New staff are created with the default
+          password and forced to change it on first login; re-uploads update existing staff by
+          employment number.
         </p>
       </Card>
 
@@ -345,8 +368,18 @@ export default function AdminStaff() {
                   <td className="px-4 py-2 font-mono text-xs">{s.emp_no}</td>
                   <td className="px-4 py-2">{s.name}</td>
                   <td className="px-4 py-2 text-slate-600">{s.departments?.name ?? '—'}</td>
-                  <td className="px-4 py-2">{s.duty_quota_break ?? <span className="text-slate-400">inherit</span>}</td>
-                  <td className="px-4 py-2">{s.duty_quota_lunch ?? <span className="text-slate-400">inherit</span>}</td>
+                  <td className="px-4 py-2">
+                    <QuotaCell
+                      value={s.duty_quota_break}
+                      onSave={(v) => onQuotaChange(s, 'duty_quota_break', v)}
+                    />
+                  </td>
+                  <td className="px-4 py-2">
+                    <QuotaCell
+                      value={s.duty_quota_lunch}
+                      onSave={(v) => onQuotaChange(s, 'duty_quota_lunch', v)}
+                    />
+                  </td>
                   <td className="px-4 py-2">
                     {s.profile?.is_admin ? (
                       <Badge tone="indigo">Admin</Badge>
@@ -540,5 +573,74 @@ function AddStaffModal({
         </form>
       </div>
     </div>
+  )
+}
+
+// Inline editor for a per-staff duty quota. Blank = inherit the group default.
+function QuotaCell({
+  value,
+  onSave,
+}: {
+  value: number | null
+  onSave: (v: number | null) => Promise<void>
+}) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  const start = () => {
+    setDraft(value === null ? '' : String(value))
+    setEditing(true)
+  }
+
+  const save = async () => {
+    const trimmed = draft.trim()
+    if (trimmed !== '' && (!/^\d+$/.test(trimmed) || parseInt(trimmed, 10) > 99)) return
+    setSaving(true)
+    try {
+      await onSave(trimmed === '' ? null : parseInt(trimmed, 10))
+      setEditing(false)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (!editing) {
+    return (
+      <button
+        onClick={start}
+        title="Click to change this person's duty quota"
+        className="rounded px-1.5 py-0.5 hover:bg-brand-50 hover:text-brand-800"
+      >
+        {value ?? <span className="text-slate-400">inherit</span>}
+      </button>
+    )
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      <input
+        autoFocus
+        inputMode="numeric"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') void save()
+          if (e.key === 'Escape') setEditing(false)
+        }}
+        placeholder="inherit"
+        className="w-14 rounded border border-slate-300 px-1.5 py-0.5 text-sm"
+      />
+      <button
+        onClick={() => void save()}
+        disabled={saving}
+        className="text-xs font-medium text-brand-700 hover:underline disabled:opacity-50"
+      >
+        {saving ? '…' : 'Save'}
+      </button>
+      <button onClick={() => setEditing(false)} className="text-xs text-slate-500 hover:underline">
+        Cancel
+      </button>
+    </span>
   )
 }

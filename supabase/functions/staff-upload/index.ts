@@ -1,6 +1,7 @@
-// POST { rows: Array<{ emp_no, name, department?, year_group?, duty_quota_break?, duty_quota_lunch? }>, dry_run? }
-// Rows come from the standard WSO staff sheet: the duty group is the department
-// when present, otherwise the year group (primary staff). Extra columns are ignored.
+// POST { rows: Array<{ emp_no, name, subject?, year_group?, department?, duty_quota_break?, duty_quota_lunch? }>, dry_run? }
+// Rows come from the standard WSO staff sheet: the duty group is the subject when
+// present, otherwise the year group, otherwise the department (the school's sheet
+// uses Department for the phase, e.g. "Secondary"). Extra columns are ignored.
 // Admin only. Upserts staff by emp_no. For new staff, creates a Supabase Auth user
 // (email = `${emp_no}@duty.internal`, password = Wso2026!) and a profile linking them.
 // Existing staff have their fields updated but auth accounts and passwords are left alone.
@@ -20,15 +21,21 @@ const DEFAULT_PASSWORD = 'Wso2026!'
 interface CsvRow {
   emp_no: string
   name: string
+  subject?: string | null
   department?: string | null
   year_group?: string | null
   duty_quota_break?: number | string | null
   duty_quota_lunch?: number | string | null
 }
 
-// Department wins; primary staff with a blank department group by year group.
+// Subject wins, then year group, then department — the school's sheet uses
+// Department for the phase ("Secondary"), so subject is the real duty group.
 function dutyGroup(row: CsvRow): string {
-  return String(row.department ?? '').trim() || String(row.year_group ?? '').trim()
+  return (
+    String(row.subject ?? '').trim() ||
+    String(row.year_group ?? '').trim() ||
+    String(row.department ?? '').trim()
+  )
 }
 
 interface UploadResult {
