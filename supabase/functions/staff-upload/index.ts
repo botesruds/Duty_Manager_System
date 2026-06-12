@@ -30,11 +30,53 @@ interface CsvRow {
 
 // Subject wins, then year group, then department — the school's sheet uses
 // Department for the phase ("Secondary"), so subject is the real duty group.
+// Subject cells hold job titles ("English Teacher", "HOD Business Studies");
+// clean them into department names, matching the Lesson Observations import.
+const DEPARTMENT_SYNONYMS: Record<string, string> = {
+  math: 'Mathematics',
+  maths: 'Mathematics',
+  mathematics: 'Mathematics',
+  'business and economics': 'Business and Economics',
+  'business and economy': 'Business and Economics',
+  'business studies': 'Business and Economics',
+  science: 'Science',
+  pe: 'PE',
+  'pe and geography': 'PE',
+  dt: 'Design Technology',
+  'design technology': 'Design Technology',
+  mfl: 'MFL',
+  'academy mfl': 'MFL',
+  french: 'MFL',
+  'food teach': 'Food Technology',
+  'food tech': 'Food Technology',
+  english: 'English',
+}
+
+function cleanDepartment(subjectRaw: string | null | undefined): string {
+  if (!subjectRaw) return ''
+  const cleaned = subjectRaw
+    .replace(/\(.*?\)/g, ' ')
+    .replace(/^(hod|head of)\s+/i, '')
+    .replace(/teacher\s*$/i, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (!cleaned) return ''
+  const key = cleaned
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/\./g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return DEPARTMENT_SYNONYMS[key] ?? cleaned
+}
+
 function dutyGroup(row: CsvRow): string {
+  const dept = String(row.department ?? '').trim()
+  const deptIsPhase = /^(primary|secondary)$/i.test(dept)
   return (
-    String(row.subject ?? '').trim() ||
+    cleanDepartment(row.subject) ||
     String(row.year_group ?? '').trim() ||
-    String(row.department ?? '').trim()
+    (deptIsPhase ? '' : dept)
   )
 }
 
