@@ -354,7 +354,7 @@ export default function AdminStaff() {
               <tr>
                 <th className="px-4 py-2">Emp No</th>
                 <th className="px-4 py-2">Name</th>
-                <th className="px-4 py-2">Department</th>
+                <th className="px-4 py-2">Subject</th>
                 <th className="px-4 py-2">Break</th>
                 <th className="px-4 py-2">Lunch</th>
                 <th className="px-4 py-2">Role</th>
@@ -536,7 +536,7 @@ function AddStaffModal({
             required
           />
           <Select
-            label="Department"
+            label="Subject / duty group"
             value={departmentName}
             onChange={(e) => setDepartmentName(e.target.value)}
           >

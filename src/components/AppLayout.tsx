@@ -64,7 +64,7 @@ export default function AppLayout() {
               <>
                 <NavLink to="/admin" end className={cls}>Overview</NavLink>
                 <NavLink to="/admin/staff" className={cls}>Staff</NavLink>
-                <NavLink to="/admin/departments" className={cls}>Departments</NavLink>
+                <NavLink to="/admin/departments" className={cls}>Duty groups</NavLink>
                 <NavLink to="/admin/locations" className={cls}>Locations</NavLink>
                 <NavLink to="/admin/bookings" className={cls}>Bookings</NavLink>
                 <NavLink to="/admin/schedule" className={cls}>Schedule</NavLink>

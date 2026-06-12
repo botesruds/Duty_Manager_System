@@ -58,7 +58,7 @@ export default function AdminDepartments() {
 
   return (
     <div>
-      <PageHeader title="Departments" subtitle="Default duty quotas per department." />
+      <PageHeader title="Duty groups" subtitle="Default duty quotas per group — subjects for secondary staff, year groups for primary. Individual overrides are set on the Staff page." />
 
       <Card className="mb-6">
         <form onSubmit={onCreate} className="grid grid-cols-1 gap-3 sm:grid-cols-4">
@@ -73,7 +73,7 @@ export default function AdminDepartments() {
       </Card>
 
       {rows.length === 0 ? (
-        <EmptyState title="No departments yet" body="Add one above to get started." />
+        <EmptyState title="No duty groups yet" body="Upload the staff sheet or add one above to get started." />
       ) : (
         <Card className="overflow-hidden p-0">
           <table className="min-w-full divide-y divide-slate-200 text-sm">
