@@ -80,6 +80,31 @@ export default function AdminStaff() {
     void load()
   }, [])
 
+  // Standard WSO staff sheet headers → the fields this platform uses.
+  // Extra columns (subject, performance manager, …) fall through untouched
+  // and are ignored by the upload function.
+  const HEADER_ALIASES: Record<string, string> = {
+    emp_no: 'emp_no',
+    empno: 'emp_no',
+    employment_number: 'emp_no',
+    employee_number: 'emp_no',
+    staff_number: 'emp_no',
+    name: 'name',
+    full_name: 'name',
+    teacher: 'name',
+    teacher_name: 'name',
+    staff_name: 'name',
+    department: 'department',
+    dept: 'department',
+    year_group: 'year_group',
+    yeargroup: 'year_group',
+    year: 'year_group',
+    duty_quota_break: 'duty_quota_break',
+    break_quota: 'duty_quota_break',
+    duty_quota_lunch: 'duty_quota_lunch',
+    lunch_quota: 'duty_quota_lunch',
+  }
+
   const onFile = (file: File) => {
     setErr(null)
     setResult(null)
@@ -87,6 +112,10 @@ export default function AdminStaff() {
     Papa.parse<UploadStaffRow>(file, {
       header: true,
       skipEmptyLines: true,
+      transformHeader: (h) => {
+        const key = h.trim().toLowerCase().replace(/[\s-]+/g, '_')
+        return HEADER_ALIASES[key] ?? key
+      },
       complete: async (parsed) => {
         if (parsed.errors.length) {
           setErr('CSV parse error: ' + parsed.errors[0].message)
@@ -220,13 +249,17 @@ export default function AdminStaff() {
       )}
 
       <Card className="mb-4 text-sm text-slate-600">
-        <p className="font-medium text-slate-800">CSV format</p>
+        <p className="font-medium text-slate-800">Standard WSO staff sheet</p>
         <code className="mt-1 block text-xs">
-          emp_no,name,department,duty_quota_break,duty_quota_lunch
+          Employment number, Name, Department, Year group, Subject, Performance manager,
+          Duty quota break, Duty quota lunch
         </code>
         <p className="mt-1 text-xs text-slate-500">
-          Quotas are optional per row — blank inherits from the department default. New staff are
-          created with the default password and forced to change it on first login.
+          Save the shared staff sheet as CSV and upload it — this platform reads the employment
+          number, name, and duty group (department if set, otherwise year group) and ignores the
+          rest. Quotas are optional per row — blank inherits from the group default. New staff are
+          created with the default password and forced to change it on first login; re-uploads
+          update existing staff by employment number.
         </p>
       </Card>
 

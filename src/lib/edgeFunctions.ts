@@ -9,7 +9,8 @@ async function invoke<T>(name: string, body: Record<string, unknown>): Promise<T
 export interface UploadStaffRow {
   emp_no: string
   name: string
-  department: string
+  department?: string | null
+  year_group?: string | null
   duty_quota_break?: number | string | null
   duty_quota_lunch?: number | string | null
 }

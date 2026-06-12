@@ -1,4 +1,6 @@
-// POST { rows: Array<{ emp_no, name, department, duty_quota_break?, duty_quota_lunch? }>, dry_run? }
+// POST { rows: Array<{ emp_no, name, department?, year_group?, duty_quota_break?, duty_quota_lunch? }>, dry_run? }
+// Rows come from the standard WSO staff sheet: the duty group is the department
+// when present, otherwise the year group (primary staff). Extra columns are ignored.
 // Admin only. Upserts staff by emp_no. For new staff, creates a Supabase Auth user
 // (email = `${emp_no}@duty.internal`, password = Duties2026!) and a profile linking them.
 // Existing staff have their fields updated but auth accounts and passwords are left alone.
@@ -18,9 +20,15 @@ const DEFAULT_PASSWORD = 'Duties2026!'
 interface CsvRow {
   emp_no: string
   name: string
-  department: string
+  department?: string | null
+  year_group?: string | null
   duty_quota_break?: number | string | null
   duty_quota_lunch?: number | string | null
+}
+
+// Department wins; primary staff with a blank department group by year group.
+function dutyGroup(row: CsvRow): string {
+  return String(row.department ?? '').trim() || String(row.year_group ?? '').trim()
 }
 
 interface UploadResult {
@@ -48,8 +56,8 @@ Deno.serve(async (req) => {
 
     const result: UploadResult = { created: 0, updated: 0, errors: [] }
 
-    // Resolve department names → ids in one query.
-    const deptNames = Array.from(new Set(rows.map((r) => r.department?.trim()).filter(Boolean)))
+    // Resolve duty group names → department ids in one query.
+    const deptNames = Array.from(new Set(rows.map(dutyGroup).filter(Boolean)))
     const { data: deptRows } = await svc
       .from('departments')
       .select('id, name')
@@ -99,7 +107,7 @@ Deno.serve(async (req) => {
     for (const row of rows) {
       const emp_no = String(row.emp_no ?? '').trim()
       const name = String(row.name ?? '').trim()
-      const department = String(row.department ?? '').trim()
+      const department = dutyGroup(row)
       if (!/^[0-9]+$/.test(emp_no)) {
         result.errors.push({ emp_no, message: 'emp_no must be numeric' })
         continue
