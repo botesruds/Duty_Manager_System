@@ -2,7 +2,7 @@
 // Rows come from the standard WSO staff sheet: the duty group is the department
 // when present, otherwise the year group (primary staff). Extra columns are ignored.
 // Admin only. Upserts staff by emp_no. For new staff, creates a Supabase Auth user
-// (email = `${emp_no}@duty.internal`, password = Duties2026!) and a profile linking them.
+// (email = `${emp_no}@duty.internal`, password = Wso2026!) and a profile linking them.
 // Existing staff have their fields updated but auth accounts and passwords are left alone.
 // With dry_run: true, nothing is written — returns what WOULD be created/updated plus
 // validation errors and departments that would be auto-created.
@@ -15,7 +15,7 @@ import {
   requireAdmin,
 } from '../_shared/admin.ts'
 
-const DEFAULT_PASSWORD = 'Duties2026!'
+const DEFAULT_PASSWORD = 'Wso2026!'
 
 interface CsvRow {
   emp_no: string

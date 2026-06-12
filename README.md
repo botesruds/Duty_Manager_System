@@ -45,7 +45,7 @@ turn on realtime for the attendance table.
 Two Edge Functions live in [`supabase/functions/`](supabase/functions/):
 
 - `staff-upload` — admin uploads a CSV; upserts staff and creates auth accounts
-- `admin-reset-password` — admin resets a teacher's password to `Duties2026!`
+- `admin-reset-password` — admin resets a teacher's password to `Wso2026!`
 
 Both verify the caller is `is_admin=true` before doing anything.
 
@@ -64,10 +64,10 @@ npm install
 npm run bootstrap:admin -- 9999   # replace 9999 with whatever emp_no you want
 ```
 
-That creates an auth user `9999@duty.internal` with password `Duties2026!`
+That creates an auth user `9999@duty.internal` with password `Wso2026!`
 and a profile with `is_admin=true` (no staff record).
 
-Sign in at `/login` with **Emp No `9999`** and **password `Duties2026!`**.
+Sign in at `/login` with **Emp No `9999`** and **password `Wso2026!`**.
 
 ## 5. (Optional) Seed staff from CSV via the command line
 
@@ -107,7 +107,7 @@ Teachers log in with **Emp No + password**. Under the hood the app constructs
 `{empNo}@duty.internal` and uses Supabase email/password auth — teachers never
 see the constructed email.
 
-- Default password: `Duties2026!`
+- Default password: `Wso2026!`
 - On first login (or after an admin reset), `staff.must_change_password = true`
   and the user is gated behind `/change-password` until they pick a new one.
 - Self-service reset is disabled; only an admin can reset, which sets the

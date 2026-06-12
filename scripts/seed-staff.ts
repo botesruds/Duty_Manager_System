@@ -6,7 +6,7 @@
 //
 // Same behavior as the Admin Portal upload:
 //   - upsert by emp_no (no deletes)
-//   - new staff get a Duties2026! auth account + must_change_password=true
+//   - new staff get a Wso2026! auth account + must_change_password=true
 //   - missing departments are auto-created with zero quotas
 //
 // Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env (or the environment).
@@ -19,7 +19,7 @@ import { config as loadEnv } from 'dotenv'
 loadEnv({ path: '.env.local' })
 loadEnv() // fall back to .env
 
-const DEFAULT_PASSWORD = 'Duties2026!'
+const DEFAULT_PASSWORD = 'Wso2026!'
 
 const url = process.env.SUPABASE_URL
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY

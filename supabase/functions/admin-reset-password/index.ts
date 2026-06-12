@@ -1,5 +1,5 @@
 // POST { staff_id: uuid }
-// Admin only. Resets the linked auth user's password to Duties2026! and flips
+// Admin only. Resets the linked auth user's password to Wso2026! and flips
 // must_change_password back to true so the teacher is forced to change it on next login.
 
 import {
@@ -10,7 +10,7 @@ import {
   requireAdmin,
 } from '../_shared/admin.ts'
 
-const DEFAULT_PASSWORD = 'Duties2026!'
+const DEFAULT_PASSWORD = 'Wso2026!'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS })

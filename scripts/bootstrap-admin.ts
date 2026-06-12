@@ -3,7 +3,7 @@
 //
 // The given emp_no is used to build the constructed email and (if needed) create the auth user.
 // The account is given an admin profile but no staff row — admin-only.
-// Sets the password to Duties2026! and must_change_password is irrelevant for admins
+// Sets the password to Wso2026! and must_change_password is irrelevant for admins
 // (the password-change gate only runs against staff records).
 
 import { createClient } from '@supabase/supabase-js'
@@ -11,7 +11,7 @@ import { config as loadEnv } from 'dotenv'
 loadEnv({ path: '.env.local' })
 loadEnv() // fall back to .env
 
-const DEFAULT_PASSWORD = 'Duties2026!'
+const DEFAULT_PASSWORD = 'Wso2026!'
 
 const url = process.env.SUPABASE_URL
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY

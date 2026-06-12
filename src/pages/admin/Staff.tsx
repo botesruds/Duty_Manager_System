@@ -461,7 +461,7 @@ function AddStaffModal({
       }
       onAdded(
         res.created === 1
-          ? `Added ${name} (${empNo}). Default password: Duties2026!`
+          ? `Added ${name} (${empNo}). Default password: Wso2026!`
           : `Updated existing record for ${name} (${empNo}).`,
       )
     } catch (e) {
@@ -482,7 +482,7 @@ function AddStaffModal({
           </button>
         </div>
         <p className="mb-3 text-xs text-slate-500">
-          Creates an account with the default password <code>Duties2026!</code>. The new staff member is
+          Creates an account with the default password <code>Wso2026!</code>. The new staff member is
           prompted to change it on first login. If the emp_no already exists, their record will be
           updated instead.
         </p>

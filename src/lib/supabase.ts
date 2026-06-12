@@ -19,4 +19,4 @@ export const supabase = createClient<Database>(url, anonKey, {
 })
 
 export const empNoToEmail = (empNo: string) => `${empNo}@duty.internal`
-export const DEFAULT_PASSWORD = 'Duties2026!'
+export const DEFAULT_PASSWORD = 'Wso2026!'

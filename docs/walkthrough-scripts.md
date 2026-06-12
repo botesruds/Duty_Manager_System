@@ -25,7 +25,7 @@ window open and the schedule published, so confirmation states are visible.
 [Open the login page]
 
 > You log in with your **employee number** — same one HR uses — and a password.
-> Everyone starts with the default password `Duties2026!`. On your first login the
+> Everyone starts with the default password `Wso2026!`. On your first login the
 > system will force you to change it before you go any further.
 
 [Type emp_no, log in. Land on Dashboard]
@@ -133,7 +133,7 @@ a few locations, a few bookings — so each page has something to show.
 > **Staff** lists everyone. You can **Upload CSV** for bulk loads at the start
 > of the year, or **Add staff** to enter one person at a time. Each row has a
 > role pill — click it to toggle a teacher to a monitor. There's also a
-> **Reset password** button — that puts them back to the default `Duties2026!`
+> **Reset password** button — that puts them back to the default `Wso2026!`
 > — and a **Delete** button if someone leaves the school.
 
 [Click "Departments"]
