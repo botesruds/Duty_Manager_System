@@ -1,6 +1,6 @@
 import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Badge, Button, Card, EmptyState, Input, PageHeader, Select } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Input, PageHeader } from '../../components/ui'
 
 type Category = 'indoor' | 'outdoor'
 const CATEGORIES: Category[] = ['outdoor', 'indoor']
@@ -14,7 +14,6 @@ interface Location {
 export default function AdminLocations() {
   const [locations, setLocations] = useState<Location[]>([])
   const [newName, setNewName] = useState('')
-  const [newCategory, setNewCategory] = useState<Category>('outdoor')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
   const [editingCategory, setEditingCategory] = useState<Category>('outdoor')
@@ -46,13 +45,12 @@ export default function AdminLocations() {
     setErr(null)
     const name = newName.trim()
     if (!name) return
-    const { error } = await supabase.from('locations').insert({ name, category: newCategory })
+    const { error } = await supabase.from('locations').insert({ name, category: activeCategory })
     if (error) {
       setErr(error.message)
       return
     }
     setNewName('')
-    setActiveCategory(newCategory)
     await load()
   }
 
@@ -131,17 +129,12 @@ export default function AdminLocations() {
           <Input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            placeholder="e.g. 3G Zone 1"
+            placeholder={`New ${activeCategory} location, e.g. 3G Zone 1`}
             className="flex-1 min-w-[14rem]"
           />
-          <Select value={newCategory} onChange={(e) => setNewCategory(e.target.value as Category)}>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c} className="capitalize">
-                {c}
-              </option>
-            ))}
-          </Select>
-          <Button type="submit">Add location</Button>
+          <Button type="submit" className="capitalize">
+            Add {activeCategory} location
+          </Button>
         </form>
 
         {filteredLocations.length === 0 ? (
