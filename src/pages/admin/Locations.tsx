@@ -52,6 +52,7 @@ export default function AdminLocations() {
       return
     }
     setNewName('')
+    setActiveCategory(newCategory)
     await load()
   }
 
