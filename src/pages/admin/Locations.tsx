@@ -40,6 +40,11 @@ export default function AdminLocations() {
     [locations, activeCategory],
   )
 
+  const describeError = (error: { code?: string; message: string }, name: string) =>
+    error.code === '23505'
+      ? `A location named "${name}" already exists. Location names must be unique — check both the Indoor and Outdoor tabs.`
+      : error.message
+
   const onAddLocation = async (e: FormEvent) => {
     e.preventDefault()
     setErr(null)
@@ -47,7 +52,7 @@ export default function AdminLocations() {
     if (!name) return
     const { error } = await supabase.from('locations').insert({ name, category: activeCategory })
     if (error) {
-      setErr(error.message)
+      setErr(describeError(error, name))
       return
     }
     setNewName('')
@@ -80,7 +85,7 @@ export default function AdminLocations() {
       .update({ name, category: editingCategory })
       .eq('id', editingId)
     if (error) {
-      setErr(error.message)
+      setErr(describeError(error, name))
       return
     }
     setEditingId(null)
