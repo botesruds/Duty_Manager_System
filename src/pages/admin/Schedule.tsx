@@ -180,22 +180,6 @@ export default function AdminSchedule() {
     }
   }
 
-  const onDeleteBooking = async (booking: BookingRow) => {
-    if (
-      !confirm(
-        `Delete ${booking.staff_name}'s ${DUTY_TYPE_LABEL[booking.duty_type]} booking?\n\nThis removes the booking entirely (and any attendance records or swap requests on it). The teacher will see it disappear from their dashboard. Use cases: the teacher shouldn't be on duty at all that day. To just unassign from a location, drag back to Unassigned instead.`,
-      )
-    )
-      return
-    setErr(null)
-    setBookings((rows) => rows.filter((r) => r.booking_id !== booking.booking_id))
-    const { error } = await supabase.from('bookings').delete().eq('id', booking.booking_id)
-    if (error) {
-      setErr(error.message)
-      await load(day)
-    }
-  }
-
   const onTogglePublish = async () => {
     if (published === null) return
     if (!published) {
@@ -378,7 +362,6 @@ export default function AdminSchedule() {
                     booking={b}
                     onDragStart={handleDragStart(b)}
                     onDragEnd={handleDragEnd}
-                    onDelete={() => onDeleteBooking(b)}
                   />
                 )),
               )}
@@ -425,7 +408,6 @@ export default function AdminSchedule() {
                             booking={occupant}
                             onDragStart={handleDragStart(occupant)}
                             onDragEnd={handleDragEnd}
-                            onDelete={() => onDeleteBooking(occupant)}
                           />
                         ) : (
                           <div className="rounded-md border border-dashed border-slate-200 px-2 py-1 text-xs italic text-slate-400">
@@ -449,12 +431,10 @@ function Chip({
   booking,
   onDragStart,
   onDragEnd,
-  onDelete,
 }: {
   booking: BookingRow
   onDragStart: (e: DragEvent) => void
   onDragEnd: () => void
-  onDelete?: () => void
 }) {
   const tone =
     booking.duty_type === 'break'
@@ -472,23 +452,6 @@ function Chip({
     >
       {booking.staff_name}
       <span className="text-[10px] opacity-70">· {DUTY_TYPE_LABEL[booking.duty_type]}</span>
-      {onDelete && (
-        <button
-          // Stop drag from kicking in when clicking ×.
-          draggable={false}
-          onMouseDown={(e) => e.stopPropagation()}
-          onDragStart={(e) => e.preventDefault()}
-          onClick={(e) => {
-            e.stopPropagation()
-            onDelete()
-          }}
-          aria-label={`Delete ${booking.staff_name}'s booking`}
-          title="Delete booking (removes from teacher's schedule)"
-          className="ml-0.5 rounded-full px-1 text-current opacity-60 hover:bg-rose-100 hover:text-rose-700 hover:opacity-100"
-        >
-          ×
-        </button>
-      )}
     </span>
   )
 }
