@@ -96,13 +96,6 @@ export default function AdminBookings() {
     }
   }
 
-  const onRemove = async (id: string) => {
-    if (!confirm('Remove this booking?')) return
-    const { error } = await supabase.from('bookings').delete().eq('id', id)
-    if (error) setErr(error.message)
-    else await load()
-  }
-
   return (
     <div>
       <PageHeader
@@ -180,15 +173,12 @@ export default function AdminBookings() {
                           const s = slotsById.get(b.duty_slot_id)
                           if (!s) return null
                           return (
-                            <button
+                            <span
                               key={b.id}
-                              onClick={() => onRemove(b.id)}
-                              className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-700 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700"
-                              title="Click to remove"
+                              className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-700"
                             >
                               {s.day_of_week} · {DUTY_TYPE_LABEL[s.duty_type]}
-                              <span aria-hidden>×</span>
-                            </button>
+                            </span>
                           )
                         })}
                         {bks.length === 0 && <span className="text-xs text-slate-400">—</span>}
